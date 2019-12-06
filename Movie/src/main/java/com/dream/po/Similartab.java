@@ -1,10 +1,13 @@
 package com.dream.po;
 
+/**
+ * 相似度表
+ *
+ */
 public class Similartab {
+
     private Integer itemid1;
-
     private Integer itemid2;
-
     private Double similar;
 
     public Integer getItemid1() {

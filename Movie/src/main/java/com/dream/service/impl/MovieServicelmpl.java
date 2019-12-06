@@ -21,6 +21,8 @@ public class MovieServicelmpl implements MovieService {
     @Autowired
     private BrowseMapper browseMapper;
 
+    //----------------------------------------------------
+
     @Override
     public E3Result SelectTopDefaultMovie(int limit) {
         List<Movie> list = moivemapper.SelectTopDefaultMovie(limit);;
@@ -49,12 +51,15 @@ public class MovieServicelmpl implements MovieService {
 
     @Override
     public E3Result Select5SimilarMoviesById(int id) {
+        List<Movie> movieList = new ArrayList<Movie>();
+
         SimilartabExample similartabExample = new SimilartabExample();
         SimilartabExample.Criteria criteria = similartabExample.createCriteria();
+
         criteria.andItemid1EqualTo(id);
         similartabExample.setOrderByClause("similar");
         List<Similartab> list = similartabMapper.select5ByExample(similartabExample);
-        List<Movie> movieList = new ArrayList<Movie>();
+
         Movie movie = null;
         for (Similartab similartab : list) {
             movie = moivemapper.selectByPrimaryKey(similartab.getItemid2());
@@ -64,26 +69,31 @@ public class MovieServicelmpl implements MovieService {
         }
         return E3Result.ok(movieList);
     }
+
     @Override
     public int booluserunlikedmovie(int userid,String movieid)
     {
        return  browseMapper.booluserunlikedmovie(userid,movieid);
     }
+
     @Override
     public void InsertUserFavouriteMoive(Selectquery selectquery)
     {
         browseMapper.insertuserfavourtemovie(selectquery);
     }
+
     @Override
     public Movie getMovieByMovieid(Integer id) {
         Movie movie = moivemapper.selectByPrimaryKey(id);
         return movie;
     }
+
     @Override
     public List<Movie> selectMoviesByName(String moviename){
         List<Movie> list = moivemapper.selectByNameLike(moviename);
         return list;
     }
+
     @Override
     public String Select5SimilarMovies(int id) {
         SimilartabExample similartabExample = new SimilartabExample();

@@ -10,23 +10,25 @@ import org.apache.spark.streaming.{StreamingContext, Duration}
 
 /**
   * 接收kafka产生的数据，进行处理
+  *
   * Created by ZXL on 2018/3/11.
   */
 object SparkDirectStream {
 
   def main(args: Array[String]) {
     val conf = new SparkConf().setAppName("SparkDirectStream").setMaster("spark://spark1:7077")
-    // Duration对象中封装了时间的一个对象，它的单位是ms.
-    val batchDuration = new Duration(5000)
-    // batchDuration为时间间隔
-    val ssc = new StreamingContext(conf, batchDuration)
+    val batchDuration = new Duration(5000) // Duration对象中封装了时间的一个对象，它的单位是ms.
+    val ssc = new StreamingContext(conf, batchDuration) // batchDuration为时间间隔
     val hc = new HiveContext(ssc.sparkContext)
+
     // 训练数据中是否有该用户
     val validusers = hc.sql("select * from trainingData")
     val userlist = validusers.select("userId")
 
     val modelpath = "/tmp/BestModel/0.5295311925919642"
     val broker = "spark1:9092"
+
+
     println("#################################################")
     // val topics = "movie".split(",").toSet
     val topics = Set("movie")
@@ -42,6 +44,8 @@ object SparkDirectStream {
     // 1.推荐观看人数较多的电影，采用这种策略
     // 2.推荐最新的电影
     val defaultrecresult = hc.sql("select * from top5DF").rdd.toLocalIterator
+
+
     println("#################################################")
     // 创建SparkStreaming接收kafka消息队列数据的2种方式
     // 一种是Direct approache,通过SparkStreaming自己主动去Kafka消息队
@@ -52,6 +56,7 @@ object SparkDirectStream {
 
     val messages = kafkaDirectStream.foreachRDD { rdd =>
       println(rdd)
+
       val userrdd = rdd.map(x => x._2.split(",")).map(x => x(1)).map(_.toInt)
       val validusers = userrdd.filter(user => exist(user))
       val newusers = userrdd.filter(user => !exist(user))

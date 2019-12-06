@@ -1,22 +1,32 @@
 package com.zxl.ml
 
+import com.zxl.App
 import com.zxl.caseclass.Result
-import com.zxl.conf.AppConf
 import org.apache.spark.SparkContext
-import org.apache.spark.mllib.recommendation.{Rating, MatrixFactorizationModel}
-import org.apache.spark.sql.{SaveMode, SQLContext}
+import org.apache.spark.mllib.recommendation.{MatrixFactorizationModel, Rating}
+import org.apache.spark.sql.{SQLContext, SaveMode}
 import org.apache.phoenix.spark._
 
 /**
-  * 实现为所有用户推荐
+  * 实现为所有用户推荐，推荐结果存入mysql
   * 集群中提交这个main进行运行时，需要通过--jars来把mysql的驱动jar包所在的路径添加到classpath
-  *       spark-submit --class com.zxl.ml.RecommendForAllUsers --jars lib/mysql-connector-java-5.1.35-bin.jar lib/Spark_Movie.jar
-  * 按照pom.xml中指定的版本，安装hbase1.2.6以及phoenix4.9
-  * 如果需要写入到Phoenix,则也需要添加一些相关的jar包添加到classpath
+  * spark-submit --class com.zxl.ml.RecommendForAllUsers --jars lib/mysql-connector-java-5.1.35-bin.jar lib/Spark_Movie.jar
+  *
+  * 按照pom.xml中指定的版本，安装hbase1.2.6以及phoenix4.9，如果需要写入到Phoenix,则也需要添加一些相关的jar包添加到classpath
+  *
+  *
   * Created by ZXL on 2018/3/6.
   */
-object RecommendForAllUsers extends AppConf {
+object RecommendForAllUsers extends App {
+
+  /**
+    *
+    *
+    * @param args
+    */
   def main(args: Array[String]) {
+
+    //
     val users = hc.sql("select distinct(userId) from trainingData order by userId asc")
     val allusers = users.rdd.map(_.getInt(0)).toLocalIterator
 

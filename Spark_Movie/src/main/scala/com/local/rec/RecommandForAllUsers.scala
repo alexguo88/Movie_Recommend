@@ -2,8 +2,8 @@ package com.local.rec
 
 import java.io.{File, PrintWriter}
 
+import com.local.App
 import com.local.caseclass.Result1
-import com.local.conf.AppConf
 import com.local.utils.ToMySQLUtils
 
 //import com.southeast.caseclass.Result
@@ -13,7 +13,7 @@ import org.apache.spark.sql.SaveMode
 /**
   * Created by ZXL on 2018/3/2.
   */
-object RecommandForAllUsers extends AppConf {
+object RecommandForAllUsers extends App {
   def main(args: Array[String]) {
     val modelpath = "model/"
     val model = MatrixFactorizationModel.load(sc, modelpath)
@@ -35,13 +35,13 @@ object RecommandForAllUsers extends AppConf {
       import sqlContext.implicits._
       val resultDFArray = sc.parallelize(result)
 
-      val res=resultDFArray.map(line=>{
-        val fields=line.split("\\|")
-        (fields(0).toInt,fields(1))
+      val res = resultDFArray.map(line => {
+        val fields = line.split("\\|")
+        (fields(0).toInt, fields(1))
       })
 
-      val result1DF=res.reduceByKey((a,b)=>(a+","+b)).map(line=>{
-        Result1(line._1.toInt,line._2.trim().toString)
+      val result1DF = res.reduceByKey((a, b) => (a + "," + b)).map(line => {
+        Result1(line._1.toInt, line._2.trim().toString)
       }).toDF
 
       ToMySQLUtils.toMySQL(result1DF, "rec_movie", SaveMode.Append)

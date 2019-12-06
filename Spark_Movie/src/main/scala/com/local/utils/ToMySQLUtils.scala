@@ -3,9 +3,12 @@ package com.local.utils
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
 /**
+  * 转换jdbc  (mysql)
+  *
   * Created by Hero on 2018/3/1.
   */
 object ToMySQLUtils {
+
   def toMySQL(df:DataFrame,tableName:String,saveMode: SaveMode): Unit ={
     //df.registerTempTable(tableName)
 

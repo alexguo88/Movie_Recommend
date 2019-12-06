@@ -23,6 +23,12 @@ public class AlsServiceImpl implements AlsService {
     @Autowired
     private AlstabMapper alstabMapper;
 
+    /**
+     *
+     *
+     * @param userid 用户编号
+     * @return
+     */
     @Override
     public List<Movie> selectAlsMoviesByUserId(Integer userid) {
         AlstabExample alstabExample = new AlstabExample();

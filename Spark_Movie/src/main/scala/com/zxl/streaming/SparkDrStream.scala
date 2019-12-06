@@ -13,12 +13,14 @@ import scala.collection.mutable.ArrayBuffer
 
 
 /**
-  * 接收kafka产生的数据，进行处理
+  * 接收kafka产生的数据，进行处理，根据用户点击，实时推荐5部相似电影
+  *
   * Created by ZXL on 2018/3/11.
   */
 object SparkDrStream {
 
   def main(args: Array[String]) {
+
     //    val conf = new SparkConf().setAppName("SparkDrStream").setMaster("spark://movie1:7077")
     val conf = new SparkConf().setAppName("SparkDrStream").setMaster("local[2]")
     // Duration对象中封装了时间的一个对象，它的单位是ms.
@@ -27,10 +29,12 @@ object SparkDrStream {
     val ssc = new StreamingContext(conf, batchDuration)
     ssc.checkpoint("F:/movieck")
 
+
     val topics = Set("test1")
     val kafkaParams = Map("metadata.broker.list" -> "movie1:9092,movie2:9092,movie3:9092")
 
 
+    //kafka数据流
     val messages = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
 
 
@@ -51,38 +55,46 @@ object SparkDrStream {
 
     // 去除重复数据（就是该用户对某一个电影的评分发生改变）
     // updateStateByKey: 以DStream中的数据进行按key做reduce操作，然后对各个批次的数据进行累加
-    val ratings = messagesDStream.map { case UserRating(user, movie, rating) => {
-      ((user, movie), rating)
-    }
-    }.updateStateByKey { (values: Seq[Double], now: Option[Double]) => {
-      //now:是当前的评分数据
-      //values:是历史评分数据
-      var latest: Double = now.getOrElse(0)
-      if (values.size > 0) {
-        latest = values(0)
+    val ratings = messagesDStream
+      .map {
+        case UserRating(user, movie, rating) => {
+          ((user, movie), rating)
+        }
       }
-      Some(latest)
-    }
-    }.map { case ((user, movie), rating) =>
-      UserRating(user, movie, rating)
-    }
+      .updateStateByKey {
+        (values: Seq[Double], now: Option[Double]) => {
+          //now:是当前的评分数据
+          //values:是历史评分数据
+          var latest: Double = now.getOrElse(0)
+          if (values.size > 0) {
+            latest = values(0)
+          }
+          Some(latest)
+        }
+      }
+      .map {
+        case ((user, movie), rating) =>
+          UserRating(user, movie, rating)
+      }
 
     ratings.print()
 
+    //把数据插入数据库保存
     ratings.foreachRDD(rdd => {
       if (!rdd.isEmpty()) {
+
+        //转换成user,moive 并去重复，本地迭代
         val ratings = rdd.map { case UserRating(user, movie, rating) => (user.toInt, movie.toInt) }.distinct().toLocalIterator
         // 如果userId相同则不存入数据库直接更新即可
         while (ratings.hasNext) {
-//          println(1)
+          //          println(1)
           val use_movie = ratings.next()
           val user = use_movie._1.toInt
           val movie = use_movie._2.toInt
 
-          // 根据电影相似度推荐5部电影
-          val similarMovies = get5SimilarMovies(movie)
-          // 将推荐结果写入数据库
-          resultInsertIntoMysql(user, similarMovies.mkString(","))
+
+          val similarMovies = get5SimilarMovies(movie) // 根据电影相似度推荐5部电影（数据库查询）
+          resultInsertIntoMysql(user, similarMovies.mkString(","))// 将推荐结果写入数据库
 
           // 如果用户不存在，则将该条数据写入评分表
 
@@ -95,10 +107,10 @@ object SparkDrStream {
     ssc.awaitTermination()
   }
 
-  // 获取与某部电影最相似的5部电影
+  // 获取与某部电影最相似的5部电影（从数据库查询）
   def get5SimilarMovies(movieId: Int): Array[Int] = {
     var movies = ArrayBuffer[Int]()
-    var connection:Connection = null
+    var connection: Connection = null
     try {
       connection = DBUtils.getConnection()
       val statement = connection.createStatement()
@@ -115,10 +127,10 @@ object SparkDrStream {
   }
 
   // 将推荐结果写入数据库中
-  def resultInsertIntoMysql(userId:Int,movieIds:String): Unit ={
-    var connection:Connection = null
+  def resultInsertIntoMysql(userId: Int, movieIds: String): Unit = {
+    var connection: Connection = null
     try {
-      connection=DBLocalUtils.getConnection()
+      connection = DBLocalUtils.getConnection()
 
       // 检查数据库中该id是否存在
       val statement = connection.createStatement()
@@ -126,17 +138,17 @@ object SparkDrStream {
       resultSet.next()
       val isHaving = resultSet.getInt(1)
       println(isHaving)
-      if(isHaving == 0){
-        val sql="insert into recTab values(?,?)"
-        val pst=connection.prepareStatement(sql)
+      if (isHaving == 0) {
+        val sql = "insert into recTab values(?,?)"
+        val pst = connection.prepareStatement(sql)
         pst.setInt(1, userId)
         pst.setString(2, movieIds)
         pst.execute()
-      } else{
-        val sql="update recTab set movieIds=? where userId=?"
-        val pst=connection.prepareStatement(sql)
-        pst.setString(1,movieIds)
-        pst.setInt(2,userId)
+      } else {
+        val sql = "update recTab set movieIds=? where userId=?"
+        val pst = connection.prepareStatement(sql)
+        pst.setString(1, movieIds)
+        pst.setInt(2, userId)
         pst.execute()
       }
 

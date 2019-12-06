@@ -132,12 +132,12 @@ object RecommendThree {
 
   //初始化操作sc
   def init(): (SparkConf, SparkContext) = {
-//        val conf = new SparkConf()
-//          .setMaster("spark://master:7077")
-//          .setAppName("TXTRecommendThree")
-//          .setJars(List("/home/origin/IdeaProjects/day04/out/artifacts/day04_jar/day04.jar"))
-//          .set("spark.executor.memory", "2G")
-//          .set("spark.driver.allowMultipleContexts", "true")
+    //        val conf = new SparkConf()
+    //          .setMaster("spark://master:7077")
+    //          .setAppName("TXTRecommendThree")
+    //          .setJars(List("/home/origin/IdeaProjects/day04/out/artifacts/day04_jar/day04.jar"))
+    //          .set("spark.executor.memory", "2G")
+    //          .set("spark.driver.allowMultipleContexts", "true")
 
 
     val conf = new SparkConf()
@@ -331,7 +331,7 @@ object RecommendThree {
 
 
     val similarity = productsSimilarity.map { case (movieId1, movieId2, sim) =>
-//      WriteToMySql(movieId1.toString + "::" + movieId2.toString + "::" + sim.toString)
+      //      WriteToMySql(movieId1.toString + "::" + movieId2.toString + "::" + sim.toString)
       println(movieId1.toString + "::" + movieId2.toString + "::" + sim.toString)
     }
 
@@ -340,6 +340,8 @@ object RecommendThree {
     productsSimilarity.unpersist()
   }
 
+
+  // 启动函数
   def main(args: Array[String]): Unit = {
     SetLogger
     println("=====================================数据准备============================================")
@@ -360,7 +362,7 @@ object RecommendThree {
 
 }
 
-//
+// 图表
 object Chart {
   def plotBarLineChart(Title: String, xLabel: String, yBarLabel: String, yBarMin: Double, yBarMax: Double, yLineLabel: String, dataBarChart: DefaultCategoryDataset, dataLineChart: DefaultCategoryDataset): Unit = {
 

@@ -6,13 +6,16 @@ import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.{SparkContext, SparkConf}
 
 /**
-  * 测试对数据建立模型
+  * 第五步：取得训练数据集和测试数据集
+  *
   * spark中提交方式：
-  *   spark-submit --class com.zxl.datacleaner.RatingData lib/Spark_Movie.jar
+  * spark-submit --class com.zxl.datacleaner.RatingData lib/Spark_Movie.jar
   * Created by ZXL on 2018/2/28.
   */
 object RatingData {
+
   def main(args: Array[String]) {
+
     val localClusterURL = "local[2]"
     val clusterMasterURL = "spark://spark1:7077"
     val conf = new SparkConf().setAppName("RatingData").setMaster(clusterMasterURL)
@@ -24,7 +27,6 @@ object RatingData {
     // 并把这些数据切分成训练集和测试集数据
     // 调用cache table tableName即可将一张表缓存到内存中，来极大的提高查询效率
     val ratings = hc.sql("cache table ratings")
-    // 取第一行第一列元素
     val count = hc.sql("select count(*) from ratings").first().getLong(0)
     val percent = 0.6
     val trainingdatacount = (count * percent).toInt
@@ -32,6 +34,7 @@ object RatingData {
 
     // 用scala feature:String Interpolation来往SQL语句中传递参数
     // order by limit的时候，需要注意OOM(Out Of Memory)的问题
+
     // 将数据按时间升序排序
     val trainingDataAsc = hc.sql(s"select userId,movieId,rating from ratings order by timestamp asc")
     trainingDataAsc.write.mode(SaveMode.Overwrite).parquet("/tmp/trainingDataAsc")

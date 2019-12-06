@@ -2,18 +2,19 @@ package com.local.rec
 
 //import com.southeast.caseclass.{Result, Result2}
 import com.local.caseclass.Result2
-import com.local.conf.AppConf
 import com.local.utils.ToMySQLUtils
 import org.apache.spark.mllib.recommendation.MatrixFactorizationModel
 import org.apache.spark.sql.SaveMode
 import org.jblas.DoubleMatrix
 import java.lang.Exception
 
+import com.local.App
+
 /**
   * Created by ZXL on 2018/3/1.
   */
 
-object RecommandForAllMovies extends AppConf{
+object RecommandForAllMovies extends App {
   /**
     * 相似度函数
     *
@@ -28,17 +29,17 @@ object RecommandForAllMovies extends AppConf{
     vec1.dot(vec2) / (vec1.norm2() * vec2.norm2())
   }
 
-  def main(args: Array[String]){
+  def main(args: Array[String]) {
     val modelpath = "model/"
     val model = MatrixFactorizationModel.load(sc, modelpath)
 
-    val movieIds=sc.textFile("data/training.dat").map(line=>{
-      val fields=line.split("\t")
+    val movieIds = sc.textFile("data/training.dat").map(line => {
+      val fields = line.split("\t")
       fields(1).toInt
     }).distinct().toLocalIterator
 
     //这里有点问题
-    while(movieIds.hasNext) {
+    while (movieIds.hasNext) {
       val movieId = movieIds.next()
 
       // 获取该物品的隐因子向量
@@ -47,7 +48,7 @@ object RecommandForAllMovies extends AppConf{
       val movieVector = new DoubleMatrix(movieFactor)
 
       // 计算电影567与其他电影的相似度
-      val sims = model.productFeatures.map{ case (id, factor) =>
+      val sims = model.productFeatures.map { case (id, factor) =>
         val factorVector = new DoubleMatrix(factor)
         val sim = cosineSimilarity(factorVector, movieVector)
         (id, sim)
@@ -57,13 +58,13 @@ object RecommandForAllMovies extends AppConf{
         case (id, similarity) => similarity
       })
 
-      val result=sortedSims.map(line=>{
-        Result2(movieId,line._1,line._2)
+      val result = sortedSims.map(line => {
+        Result2(movieId, line._1, line._2)
       }).toList
 
       import sqlContext.implicits._
-      val resultDF=result.toDF
-      ToMySQLUtils.toMySQL(resultDF,"movie_movie",SaveMode.Append)
+      val resultDF = result.toDF
+      ToMySQLUtils.toMySQL(resultDF, "movie_movie", SaveMode.Append)
     }
   }
 }

@@ -1,10 +1,9 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.dream.po;
 
+/**
+ * 默认电影
+ *
+ */
 public class Topdefaultmovies {
     private Integer id;
     private Integer movieid;

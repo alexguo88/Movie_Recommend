@@ -7,7 +7,8 @@ import org.apache.spark.{SparkContext, SparkConf}
 import com.zxl.caseclass._
 
 /**
-  * 用于原始数据的清洗
+  * 第四步：用于原始数据的清洗,把hdfs文件保存到mysql中
+  *
   * Created by ZXL on 2018/2/6.
   */
 object ETL {
@@ -23,22 +24,37 @@ object ETL {
     // 设置RDD的partition的数量一般以集群分配给应用的CPU核数的整数倍为宜。
     val minPartitions = 8
     // spark-submit --class com.zxl.datacleaner.ETL lib/Spark_Movie.jar
+
     // 通过case class来定义Links的数据结构，数据的schema，适用于schama已知的数据
-    // 也可以通过StructType的方式，适用于schema未知的数据，具体参考文档：
-    //    http://spark.apache.org/docs/1.6.2/sql-programming-guide.html#programmatically-specifying-the-schema
-    val links = sc.textFile("hdfs://spark1:9000/movie/data/links.txt", minPartitions).filter { !_.endsWith(",") } //e
-      .map(_.split(",")).map(x => Links(x(0).trim.toInt, x(1).trim.toInt, x(2).trim().toInt)).toDF()
+    // 也可以通过StructType的方式，适用于schema未知的数据，具体参考文档：http://spark.apache.org/docs/1.6.2/sql-programming-guide.html#programmatically-specifying-the-schema
 
-    val movies = sc.textFile("hdfs://spark1:9000/movie/data/movies.txt", minPartitions).filter { !_.endsWith(",") }
-      .map(_.split(",")).map(x => Movies(x(0).trim().toInt, x(1).trim(), x(2).trim())).toDF()
+    val links = sc.textFile("hdfs://spark1:9000/movie/data/links.txt", minPartitions)
+      .filter { !_.endsWith(",") } //e
+      .map(_.split(","))
+      .map(x => Links(x(0).trim.toInt, x(1).trim.toInt, x(2).trim().toInt))
+      .toDF()
 
-    val ratings = sc.textFile("hdfs://spark1:9000/movie/data/ratings.txt", minPartitions).filter { !_.endsWith(",") }
-      .map(_.split(",")).map(x => Ratings(x(0).trim().toInt, x(1).trim().toInt, x(2).trim().toDouble, x(3).trim().toInt)).toDF()
+    val movies = sc.textFile("hdfs://spark1:9000/movie/data/movies.txt", minPartitions)
+      .filter { !_.endsWith(",") }
+      .map(_.split(","))
+      .map(x => Movies(x(0).trim().toInt, x(1).trim(), x(2).trim()))
+      .toDF()
 
-    val tags = sc.textFile("hdfs://spark1:9000/movie/data/tags.txt", minPartitions).filter { !_.endsWith(",") }.map(x=>rebuild(x)).map(_.split(",")).map(x => Tags(x(0).trim().toInt, x(1).trim().toInt, x(2).trim(), x(3).trim().toInt)).toDF()
+    val ratings = sc.textFile("hdfs://spark1:9000/movie/data/ratings.txt", minPartitions)
+      .filter { !_.endsWith(",") }
+      .map(_.split(","))
+      .map(x => Ratings(x(0).trim().toInt, x(1).trim().toInt, x(2).trim().toDouble, x(3).trim().toInt))
+      .toDF()
+
+    val tags = sc.textFile("hdfs://spark1:9000/movie/data/tags.txt", minPartitions)
+      .filter { !_.endsWith(",") }
+      .map(x=>rebuild(x))
+      .map(_.split(","))
+      .map(x => Tags(x(0).trim().toInt, x(1).trim().toInt, x(2).trim(), x(3).trim().toInt))
+      .toDF()
 
 
-    // 通过数据写入到HDFS，将表存到hive中
+    // 通过数据写入到HDFS临时目录（tmp），将表存到hive中
     // links
     links.write.mode(SaveMode.Overwrite).parquet("/tmp/links")
     hc.sql("drop table if exists links")

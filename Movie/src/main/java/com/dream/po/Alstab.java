@@ -1,11 +1,13 @@
 package com.dream.po;
 
+/**
+ *
+ *
+ */
 public class Alstab {
-    private Integer userid;
-
-    private Integer movieid;
-
-    private Double rating;
+    private Integer userid; //用户编号
+    private Integer movieid; //电影编号
+    private Double rating; //打分
 
     public Integer getUserid() {
         return userid;

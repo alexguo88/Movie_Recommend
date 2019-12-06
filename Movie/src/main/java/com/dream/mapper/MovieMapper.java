@@ -30,6 +30,12 @@ public interface MovieMapper {
 
     int updateByPrimaryKey(Movie record);
 
+    /**
+     * 默认电影
+     *
+     * @param limit
+     * @return
+     */
     List<Movie> SelectTopDefaultMovie(int limit);
     List<Movie> selectByNameLike(String moviename);
 }

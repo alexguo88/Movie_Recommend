@@ -1,11 +1,16 @@
 package com.dream.po;
 
+/**
+ * 电影与分类关系表
+ *
+ */
 public class Moviecategory {
     private Integer movcatid;
 
     private Integer movieid;
-
     private Integer categoryid;
+
+
 
     public Integer getMovcatid() {
         return movcatid;

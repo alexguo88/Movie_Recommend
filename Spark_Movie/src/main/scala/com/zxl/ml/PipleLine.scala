@@ -1,15 +1,16 @@
 package com.zxl.ml
 
-import com.zxl.conf.AppConf
+import com.zxl.App
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.recommendation.ALS
 
 /**
-  * 基于dataframe来构建SPARK MLLIB应用。
+  * 基于dataframe 来构建SPARK ML 应用。
+  *
   * spark.ml是基于DATAFRAME来构建pipeline,通过pipeline来完成机器学习的流水线
   * Created by ZXL on 2018/3/11.
   */
-object PipleLine extends AppConf {
+object PipleLine extends App {
 
   //基于dataframe来构建你的SPARK MLLIB应用。
   //spark.ml是基于DATAFRAME来构建pipeline,通过pipeline来完成机器学习的流水线

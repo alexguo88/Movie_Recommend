@@ -1,5 +1,9 @@
 package com.dream.po;
 
+/**
+ * 电影分类
+ *
+ */
 public class Category {
     private Integer categoryid;
 

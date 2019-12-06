@@ -19,8 +19,8 @@ object DBUtils {
   }
 
   def close(conn: Connection): Unit = {
-    try{
-      if(!conn.isClosed() || conn != null){
+    try {
+      if (!conn.isClosed() || conn != null) {
         conn.close()
       }
     }

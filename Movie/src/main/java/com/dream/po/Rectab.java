@@ -1,8 +1,12 @@
 package com.dream.po;
 
+/**
+ * 用户喜欢的5部电影
+ *
+ */
 public class Rectab {
-    private Integer userid;
 
+    private Integer userid;
     private String movieids;
 
     public Integer getUserid() {

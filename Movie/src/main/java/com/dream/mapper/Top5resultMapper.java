@@ -6,6 +6,10 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 这个没用？
+ *
+ */
 public interface Top5resultMapper {
     int countByExample(Top5resultExample example);
 

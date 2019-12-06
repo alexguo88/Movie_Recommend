@@ -2,8 +2,8 @@ package com.zxl.ml
 
 import java.util.Properties
 
+import com.zxl.App
 import com.zxl.caseclass.Result
-import com.zxl.conf.AppConf
 import org.apache.phoenix.spark._
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.mllib.recommendation.{MatrixFactorizationModel, Rating}
@@ -13,8 +13,10 @@ import org.apache.spark.sql.{SQLContext, SaveMode}
   * 实现为所有用户推荐
   * 集群中提交这个main进行运行时，需要通过--jars来把mysql的驱动jar包所在的路径添加到classpath
   *       spark-submit --class com.zxl.ml.RecommendForAllUsers --jars lib/mysql-connector-java-5.1.35-bin.jar lib/Spark_Movie.jar
-  * 按照pom.xml中指定的版本，安装hbase1.2.6以及phoenix4.9
-  * 如果需要写入到Phoenix,则也需要添加一些相关的jar包添加到classpath
+  *
+  * 按照pom.xml中指定的版本，安装hbase1.2.6以及phoenix4.9(一个利用jdbc操作hbase的sql引擎)， 如果需要写入到Phoenix,则也需要添加一些相关的jar包添加到classpath
+  *
+  *
   * Created by ZXL on 2018/3/6.
   */
 object RecommendForAllUsers2 {
@@ -42,7 +44,7 @@ object RecommendForAllUsers2 {
 
     // 方法1，可行，但是效率不高，一条条取
     val modelpath = "model1"
-    val model = MatrixFactorizationModel.load(sc, modelpath)
+    val model = MatrixFactorizationModel.load(sc, modelpath)  //加载模型
     while (allusers.hasNext) {
       val rec = model.recommendProducts(allusers.next(), 5)
       writeRecResultToMysql(rec, sqlContext, sc)

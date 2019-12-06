@@ -2,6 +2,10 @@ package com.dream.po;
 
 import java.util.Date;
 
+/**
+ * 会员表
+ *
+ */
 public class User {
     private Integer userid;
 

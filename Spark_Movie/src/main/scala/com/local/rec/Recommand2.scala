@@ -2,14 +2,14 @@ package com.local.rec
 
 import java.io.{File, PrintWriter}
 
+import com.local.App
 import com.local.caseclass.Result2
-import com.local.conf.AppConf
 import com.local.utils.ToMySQLUtils
 import org.apache.spark.mllib.recommendation.MatrixFactorizationModel
 import org.apache.spark.sql.SaveMode
 import org.jblas.DoubleMatrix
 
-object Recommand2 extends AppConf{
+object Recommand2 extends App {
   /**
     * 相似度函数
     *
@@ -37,24 +37,24 @@ object Recommand2 extends AppConf{
 
 
     // 计算电影567与其他电影的相似度
-    val sims = model.productFeatures.map{ case (id, factor) =>
+    val sims = model.productFeatures.map { case (id, factor) =>
       val factorVector = new DoubleMatrix(factor)
       val sim = cosineSimilarity(factorVector, movieVector)
       (id, sim)
     }
 
-    val K=5
+    val K = 5
     val sortedSims = sims.top(K)(Ordering.by[(Int, Double), Double] {
       case (id, similarity) => similarity
     })
 
-    val resultRDD=sortedSims.map(line=>{
-      Result2(movieId,line._1,line._2)
+    val resultRDD = sortedSims.map(line => {
+      Result2(movieId, line._1, line._2)
     }).toList
 
     import sqlContext.implicits._
-    val  resultDF=resultRDD.toDF
+    val resultDF = resultRDD.toDF
 
-    ToMySQLUtils.toMySQL(resultDF,"movie_movie",SaveMode.Overwrite)
+    ToMySQLUtils.toMySQL(resultDF, "movie_movie", SaveMode.Overwrite)
   }
 }

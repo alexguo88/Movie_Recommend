@@ -1,5 +1,9 @@
 package com.dream.po;
 
+/**
+ * 管理员
+ *
+ */
 public class Admin {
     private Integer adminid;
 

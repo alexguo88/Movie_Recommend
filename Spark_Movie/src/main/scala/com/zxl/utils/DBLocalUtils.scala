@@ -5,6 +5,7 @@ import java.sql.{Connection, DriverManager}
 
 /**
   * 数据库连接文件
+  *
   * Created by ZXL on 2018/3/18.
   */
 object DBLocalUtils {
@@ -19,8 +20,8 @@ object DBLocalUtils {
   }
 
   def close(conn: Connection): Unit = {
-    try{
-      if(!conn.isClosed() || conn != null){
+    try {
+      if (!conn.isClosed() || conn != null) {
         conn.close()
       }
     }

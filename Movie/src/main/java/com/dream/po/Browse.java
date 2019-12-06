@@ -2,14 +2,16 @@ package com.dream.po;
 
 import java.util.Date;
 
+/**
+ * 用户浏览记录
+ *
+ */
 public class Browse {
-    private Integer browseid;
+    private Integer browseid; //主键
 
-    private Integer userid;
-
-    private String movieids;
-
-    private Date browsetime;
+    private Integer userid; //用户编号
+    private String movieids; //电影编号
+    private Date browsetime; // 浏览时间
 
     public Integer getBrowseid() {
         return browseid;

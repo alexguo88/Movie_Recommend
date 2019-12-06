@@ -1,16 +1,17 @@
 package com.zxl.datacleaner
 
-import com.zxl.ModelTrain.ItemCF._
-import com.zxl.ModelTrain.{ItemSimilarity, ItemPref}
+import com.zxl.App
+import com.zxl.modeltrain.ItemCF._
+import com.zxl.modeltrain.{ItemPref, ItemSimilarity}
 import com.zxl.caseclass.Users
-import com.zxl.conf.AppConf
 import org.apache.spark.sql.SaveMode
 
 /**
   * 清洗user表中数据，保存至数据库
+  *
   * Created by ZXL on 2018/3/18.
   */
-object UserETL extends AppConf {
+object UserETL extends App {
 
   def main(args: Array[String]) {
 

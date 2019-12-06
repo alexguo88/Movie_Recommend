@@ -2,32 +2,26 @@ package com.dream.po;
 
 import java.util.Date;
 
+/**
+ * 电影
+ *
+ */
 public class Movie {
     private Integer movieid;
-
     private String moviename;
-
     private Date showyear;
-
     private String nation;
-
     private String director;
-
     private String leadactors;
-
     private String screenwriter;
-
     private String picture;
-
     private Double averating;
-
     private Integer numrating;
-
     private String description;
-
     private String typelist;
-
     private String backpost;
+
+
 
     public Integer getMovieid() {
         return movieid;
